@@ -43,12 +43,12 @@ the environments dictionary.
 
 Generally, most projects are expected to provide the follow environments: 
 
-* A local LXC development environment called `lxc`.
-* `testing` environment, which uses LXC containers on the testing machine
-  and is potentially almost identical to the local lxc environment.
-* `staging`, a live environment (lxc or server) which can be accessed by
+* `lxc` - local LXC development environment.
+* `testing` - uses LXC containers on the testing machine
+  and is potentially almost identical to `lxc`.
+* `staging` - a live environment (lxc or server) which can be accessed by
   clients and used for User Acceptance Testing but is not actively in use.
-* `production`, live and actively used.
+* `production` - live and actively used.
 
 LXC environments are currently expected to be hosted locally, but eventually this
 script should be configured to allow remote lxc deployment.
@@ -60,8 +60,8 @@ have tools to build the package, ship it to the destination, and install it.
 
 dragonfab provides:
 
-* *deb.build* - Builds a .deb file from the current project, ready to be installed.
-* *deb.deploy* - Deploy the most recently created deb, using the debconf.dat
+* `deb.build` - Builds a .deb file from the current project, ready to be installed.
+* `deb.deploy` - Deploy the most recently created deb, using the debconf.dat
   of the current environment.
 
 ## Database and file syncing
