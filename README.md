@@ -42,12 +42,13 @@ called "vanilla" by default, you can change this by specifying 'lxc_template' in
 the environments dictionary.
 
 Generally, most projects are expected to provide the follow environments: 
-    * A local LXC development environment called `lxc`.
-    * `testing` environment, which uses LXC containers on the testing machine
-      and is potentially almost identical to the local lxc environment.
-    * `staging`, a live environment (lxc or server) which can be accessed by
-       clients and used for User Acceptance Testing but is not actively in use.
-    * `production`, live and actively used.
+
+* A local LXC development environment called `lxc`.
+* `testing` environment, which uses LXC containers on the testing machine
+  and is potentially almost identical to the local lxc environment.
+* `staging`, a live environment (lxc or server) which can be accessed by
+  clients and used for User Acceptance Testing but is not actively in use.
+* `production`, live and actively used.
 
 LXC environments are currently expected to be hosted locally, but eventually this
 script should be configured to allow remote lxc deployment.
