@@ -75,13 +75,13 @@ for env_name, settings in environments.environments.iteritems():
         t.__doc__ = "Activate %s environment." % env_name
         setattr(sys.modules[__name__], env_name, t)
 
-def _new_lxc(template='vanilla'):
+def _new_lxc(lxc_name, template='vanilla'):
     """ Create a new LXC instance on the local machine. """
-    if os.path.exists('/var/lib/lxc/%(lxc)s' % env):
+    if os.path.exists('/var/lib/lxc/%s' % lxc_name):
         _lxc_remove()
     if not os.path.exists('/var/lib/lxc/%s' % template):
-        raise "Error: you don't have a LXC to clone, called %s" % template
-    local("sudo lxc-clone -o %s -n %s" % (template, env.lxc))
-    local("sudo lxc-start -n %(lxc)s -d" % env)
+        raise Exception("Error: you don't have a LXC to clone, called %s" % template)
+    local("sudo lxc-clone -o %s -n %s" % (template, lxc_name))
+    local("sudo lxc-start -n %s -d" % lxc_name)
     time.sleep(10) # give lxc time to start
 
