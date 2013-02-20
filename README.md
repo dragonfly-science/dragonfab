@@ -137,4 +137,3 @@ Note, this is a guide only, inevitably there will be some project specific setup
 * perhaps use 'fab init' to locally setup the current machine, useful for new
   developers?
 * Read and ponder on this: http://hynek.me/articles/python-app-deployment-with-native-packages/
-
