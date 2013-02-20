@@ -64,13 +64,11 @@ of new variables that dragonfab uses.
 * `remote_path` - This is used for a relative path management. Don't specify it
   if you want to use absolute paths for other path variables. Must end in a trailing
   slash.
-* `django_path` - Remote path to django app (and where settings.py is expected to be).
-* `django_site_settings` - A django settings file that is used for customising
-  it to an environment. This is typically imported by the main settings.py.
-  This variable should be the path to a local file.
-* `django_secrets` - Another django settings file extension that is imported by
-  settings.py. This one is not kept in repository and typically contains API keys and
-  passwords.
+* `lxc` - The lxc to create, start, connect to, for running fabric commands.
+* `lxc_template` - The lxc that is used as a tempalte to create `lxc` if it is
+  missing. Looks for an lxc `vanilla` by default.
+* `debconf` - The file that is used for configuring a debian package when the
+  `deb.deploy` command is executed.
 
 ## Debian packaging
 
@@ -79,7 +77,9 @@ have tools to build the package, ship it to the destination, and install it.
 
 dragonfab provides:
 
-* `deb.build` - Builds a .deb file from the current project, ready to be installed.
+* `deb.build` - Builds a .deb file from the current project, ready to be
+  installed. This expects a `debian/` subdirectory to be present with packaging
+  details.
 * `deb.deploy` - Deploy the most recently created deb, using the debconf.dat
   of the current environment.
 
