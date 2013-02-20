@@ -9,6 +9,8 @@ from importlib import import_module
 
 from dragonfab import _lxc_remove
 
+__all__ = []
+
 # environments.py looks like:
 #
 # environments = {
@@ -76,6 +78,7 @@ for env_name, settings in environments.environments.iteritems():
         t = _set_env()
         t.__doc__ = "Activate %s environment." % env_name
         setattr(sys.modules[__name__], env_name, t)
+    __all__.append(env_name)
 
 def _new_lxc(lxc_name, template='vanilla'):
     """ Create a new LXC instance on the local machine. """

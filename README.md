@@ -53,6 +53,25 @@ Generally, most projects are expected to provide the follow environments:
 LXC environments are currently expected to be hosted locally, but eventually this
 script should be configured to allow remote lxc deployment.
 
+### Environment variables
+
+dragonfab's environment, at the most basic level, replaces variables in
+Fabric's `env` module which is used for configuration of hosts and many other things.
+
+In addition to the variables that Fabric knows what to do with, we define a number
+of new variables that dragonfab uses.
+
+* `remote_path` - This is used for a relative path management. Don't specify it
+  if you want to use absolute paths for other path variables. Must end in a trailing
+  slash.
+* `django_path` - Remote path to django app (and where settings.py is expected to be).
+* `django_site_settings` - A django settings file that is used for customising
+  it to an environment. This is typically imported by the main settings.py.
+  This variable should be the path to a local file.
+* `django_secrets` - Another django settings file extension that is imported by
+  settings.py. This one is not kept in repository and typically contains API keys and
+  passwords.
+
 ## Debian packaging
 
 Debian packages are used for deployment. Essentially, a fabfile should 
