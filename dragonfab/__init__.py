@@ -2,7 +2,7 @@ import os
 
 from fabric import api
 
-if api.env.DEBUG:
+if hasattr(api.env, 'DEBUG') and api.env.DEBUG:
     import logging
     logging.basicConfig(level=logging.DEBUG)
 
@@ -17,3 +17,4 @@ def _lxc_remove():
     if os.path.exists('/var/lib/lxc/%(lxc)s' % api.env):
         api.local("sudo lxc-stop -n %(lxc)s" % api.env)
         api.local("sudo lxc-destroy -n %(lxc)s" % api.env)
+

@@ -9,6 +9,8 @@ from importlib import import_module
 
 from dragonfab import _lxc_remove
 
+__all__ = []
+
 # environments.py looks like:
 #
 # environments = {
@@ -45,6 +47,7 @@ def _lxc(env_name):
     status = local("sudo lxc-info -n %s" % lxc_name, capture=True)
     if 'STOPPED' in status:
         local("sudo lxc-start -n %s -d" % lxc_name)
+        time.sleep(10) # give lxc time to start
 
     ip_address = local(
             "host %s 10.0.3.1 | tail -1 | awk '{print $NF}'" % lxc_name, capture=True)
@@ -57,10 +60,11 @@ for env_name, settings in environments.environments.iteritems():
         # lxc environments require special handling based off of the _lxc method
         class _lxc_task(Task):
             name = env_name
+            env_settings = dict(settings)
             def run(self):
-                env.update(settings)
-                env.env_name = env_name
-                _lxc(env_name)
+                env.update(self.env_settings)
+                env.env_name = self.name
+                _lxc(self.name)
         t = _lxc_task()
         t.__doc__ = "Activate %s environment (lxc: '%s')." % (env_name, settings['lxc'])
         setattr(sys.modules[__name__], env_name, t)
@@ -74,6 +78,7 @@ for env_name, settings in environments.environments.iteritems():
         t = _set_env()
         t.__doc__ = "Activate %s environment." % env_name
         setattr(sys.modules[__name__], env_name, t)
+    __all__.append(env_name)
 
 def _new_lxc(lxc_name, template='vanilla'):
     """ Create a new LXC instance on the local machine. """

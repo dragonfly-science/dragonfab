@@ -53,6 +53,23 @@ Generally, most projects are expected to provide the follow environments:
 LXC environments are currently expected to be hosted locally, but eventually this
 script should be configured to allow remote lxc deployment.
 
+### Environment variables
+
+dragonfab's environment, at the most basic level, replaces variables in
+Fabric's `env` module which is used for configuration of hosts and many other things.
+
+In addition to the variables that Fabric knows what to do with, we define a number
+of new variables that dragonfab uses.
+
+* `remote_path` - This is used for a relative path management. Don't specify it
+  if you want to use absolute paths for other path variables. Must end in a trailing
+  slash.
+* `lxc` - The lxc to create, start, connect to, for running fabric commands.
+* `lxc_template` - The lxc that is used as a tempalte to create `lxc` if it is
+  missing. Looks for an lxc `vanilla` by default.
+* `debconf` - The file that is used for configuring a debian package when the
+  `deb.deploy` command is executed.
+
 ## Debian packaging
 
 Debian packages are used for deployment. Essentially, a fabfile should 
@@ -60,7 +77,9 @@ have tools to build the package, ship it to the destination, and install it.
 
 dragonfab provides:
 
-* `deb.build` - Builds a .deb file from the current project, ready to be installed.
+* `deb.build` - Builds a .deb file from the current project, ready to be
+  installed. This expects a `debian/` subdirectory to be present with packaging
+  details.
 * `deb.deploy` - Deploy the most recently created deb, using the debconf.dat
   of the current environment.
 
@@ -118,4 +137,3 @@ Note, this is a guide only, inevitably there will be some project specific setup
 * perhaps use 'fab init' to locally setup the current machine, useful for new
   developers?
 * Read and ponder on this: http://hynek.me/articles/python-app-deployment-with-native-packages/
-
