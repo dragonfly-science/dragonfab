@@ -1,9 +1,8 @@
 import os
 
 from fabric import api
-from fabric.api import local, env, task
 
-if env.DEBUG:
+if api.env.DEBUG:
     import logging
     logging.basicConfig(level=logging.DEBUG)
 
