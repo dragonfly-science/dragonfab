@@ -72,8 +72,9 @@ for env_name, settings in environments.environments.iteritems():
         # most environments just update the fabric env variable
         class _set_env(Task):
             name = env_name
+            env_settings = dict(settings)
             def run(self):
-                env.update(settings)
+                env.update(self.env_settings)
                 env.env_name = env_name
         t = _set_env()
         t.__doc__ = "Activate %s environment." % env_name
