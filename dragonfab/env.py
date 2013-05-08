@@ -50,7 +50,8 @@ def _lxc(env_name):
         time.sleep(10) # give lxc time to start
 
     ip_address = local(
-            "host %s 10.0.3.1 | tail -1 | awk '{print $NF}'" % lxc_name, capture=True)
+            "cat /var/lib/misc/dnsmasq.leases | grep ' %s ' | awk '{print $3}'"
+            % lxc_name, capture=True)
     env.hosts = [ip_address]
     print "LXC setup on: %s" % ip_address
 
