@@ -31,9 +31,10 @@ def _install_deb():
     if 'debconf' in env:
         if os.path.exists(env.debconf):
             put(env.debconf, '/root/debconf.dat', use_sudo=True)
-            sudo("DEBIAN_FRONTEND=noninteractive \
-                  DEBCONF_DB_OVERRIDE='File{/root/debconf.dat}'\
-                  gdebi -q --non-interactive  %(debfile)s" % env)
+            sudo("""DEBIAN_FRONTEND=noninteractive \
+                  DEBCONF_DB_OVERRIDE='File{/root/debconf.dat}' \
+                  gdebi -o Dpkg::Options::="--force-confnew" \
+                  -q --non-interactive  %(debfile)s""" % env)
         else:
             # If debconf is defined but missing, treat as an error
             raise Exception('%s missing!' % env.debconf)

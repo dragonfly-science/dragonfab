@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name = "dragonfab",
-    version = "1.0",
+    version = "1.1",
     description = "Fabric support",
     author = "Joel Pitt",
     author_email = "joel@joelpitt.com",
