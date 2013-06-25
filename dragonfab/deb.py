@@ -3,11 +3,32 @@ import time
 
 from fabric.api import local, env, task, sudo, lcd, execute, put
 
+
+# collectstatic specifically for deb build stage
+# relies
+# TODO: abstract out manage.py for use with other django commands
+def _collectstatic():
+    if not 'django_project' in env:
+        raise Exception('django_project not defined in env')
+
+    manage = os.path.join(env.django_project, 'manage.py')
+    if not os.path.exists(manage):
+        raise Exception('%s does not exist' % manage)
+
+    deb_settings = 'deb_settings'
+    if not os.path.exists(os.path.join(env.django_project, deb_settings + '.py')):
+        raise Exception('%s does not exist' % os.path.join(env.django_project, deb_settings + '.py'))
+
+    local("python %(manage)s collectstatic --noinput --settings=%(deb)s" % {'manage': manage, 'deb': deb_settings})
+
+
 # Debian package controls
 @task
 def build():
     """ Build debian package. """
     # clean out compiled python files
+    if 'collectstatic' in env and env.collectstatic:
+        _collectstatic()
     local("find . -name \"*.pyc\" -exec rm {} \;")
     # This is the same as local("make package"), but doesn't require projects
     # have a Makefile
