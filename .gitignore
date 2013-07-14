@@ -2,3 +2,4 @@ build/
 *.pyc
 *.swp
 *.un~
+dragonfab.egg-info
