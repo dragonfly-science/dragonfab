@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(name = "dragonfab",
     version = "1.2.0",
@@ -8,4 +8,4 @@ setup(name = "dragonfab",
     url = "https://github.com/ferrouswheel/dragonfab",
     requires = ['fabric'],
     packages = ['dragonfab'],
-) 
+)
