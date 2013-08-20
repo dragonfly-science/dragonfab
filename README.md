@@ -53,6 +53,30 @@ Generally, most projects are expected to provide the follow environments:
 LXC environments are currently expected to be hosted locally, but eventually this
 script should be configured to allow remote lxc deployment.
 
+There is also a special environment `__all__`, which you can use if you want to
+define environmental variables common to all environments. The default will be
+overwritten if a specific environment also contains the variable. e.g.
+
+```python
+environments = {
+    'production': {
+         'hosts': ['app.example.com'],
+         'debconf': 'debconf.dat.production',
+         }
+    'staging': {
+         'hosts': ['staging.example.com'],
+         'db_host': 'stagingdb',
+         }
+    '__all__': {
+         'db_host': 'db',
+         }
+    ...
+}
+```
+
+Here, the `db_host` default is used by production, but the staging environment
+overwrites this with it's own value.
+
 ### Environment variables
 
 dragonfab's environment, at the most basic level, replaces variables in
@@ -90,8 +114,21 @@ database and media that is not in the code repository (uploaded files etc.)
 
 dragonfab provides:
 
-* **TODO** `db.clone` - Get a dump from a postgresql database and load it the current.
-* **TODO** `db.migrate` - Perform pending db migrations (cuckoo/south).
+* `database.dump` - Get a dump from a postgresql database.
+* `database.push` - Take a dump and load it into a postgresql database.
+* `database.migrate` - Perform pending db migrations (using south's 'migrate' command).
+
+These commands expect the following env variables, either as constants in the
+fabfile, or defined in environments.py.
+
+* `db_user` - The user the database belongs to.
+* `dba` - A database admin with permissions to create/drop dbs, and assign ownership. (for push only)
+
+Optionally:
+
+* `db_password` - The user's password, no password assumes it's not needed.
+* `db_port` - The port, if missing assume default or local socket.
+* `db_host` - The host, if missing assume local socket.
 
 ## Example
 
