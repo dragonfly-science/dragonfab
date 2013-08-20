@@ -1,17 +1,14 @@
 import os
 import time
 
-from fabric.api import local, env, task, sudo, lcd, execute, put
+from fabric.api import local, env, task, sudo, lcd, execute, put, require
 
 
 # collectstatic specifically for deb build stage
 # relies
 # TODO: abstract out manage.py for use with other django commands
 def _collectstatic():
-    if not 'django_project' in env:
-        raise Exception('django_project not defined in env')
-    if not 'django_python' in env:
-        raise Exception('django_python not defined in env')
+    require('django_project', 'django_python')
 
     manage = os.path.join(env.django_project, 'manage.py')
     if not os.path.exists(manage):
