@@ -29,7 +29,7 @@ def dump():
 
         sudo('pg_dump %s > /var/backups/dumps/latest.sql' % _connection_string(env))
 
-        get('/var/backups/dumps/latest.sql') #, 'dumps/latest.sql')
+        get('/var/backups/dumps/latest.sql', 'dumps/latest.sql')
         sudo('rm /var/backups/dumps/latest.sql')
 
 @task
@@ -42,10 +42,10 @@ def push():
     connection_string = _connection_string(env, dba=True)
     with settings(warn_only=True):
         run('dropdb %s' % connection_string)
-    run('createdb -O %(db_user)s %s' % (env.db_user, connection_string))
+    run('createdb -O %s %s' % (env.db_user, connection_string))
     #  When this bug is fixed: http://trac.osgeo.org/postgis/ticket/2223
     #  we can add "-v ON_ERROR_STOP=1" to this line
-    run('psql %s -f /var/backups/dumps/latest.sql' % env)
+    run('psql %s -f /var/backups/dumps/latest.sql' % connection_string)
 
 @task
 def migrate():
