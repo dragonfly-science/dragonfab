@@ -3,6 +3,7 @@ import os
 import time
 
 from fabric.api import local, env
+#from fabric.operations import require
 from fabric.tasks import Task
 
 from importlib import import_module
@@ -10,6 +11,7 @@ from importlib import import_module
 from dragonfab import _lxc_remove
 
 __all__ = []
+
 
 # environments.py looks like:
 #
@@ -55,14 +57,21 @@ def _lxc(env_name):
     env.hosts = [ip_address]
     print "LXC setup on: %s" % ip_address
 
+# __all__ is for shared values across environments
+default_label = '__all__'
+_defaults = environments.environments.get(default_label, {})
+
 # For each environment we create a fabric task that will modify the fabric global env
 for env_name, settings in environments.environments.iteritems():
+    if env_name == default_label:
+        continue
     if 'lxc' in settings:
         # lxc environments require special handling based off of the _lxc method
         class _lxc_task(Task):
             name = env_name
             env_settings = dict(settings)
             def run(self):
+                env.update(_defaults)
                 env.update(self.env_settings)
                 env.env_name = self.name
                 _lxc(self.name)
@@ -75,6 +84,7 @@ for env_name, settings in environments.environments.iteritems():
             name = env_name
             env_settings = dict(settings)
             def run(self):
+                env.update(_defaults)
                 env.update(self.env_settings)
                 env.env_name = env_name
         t = _set_env()

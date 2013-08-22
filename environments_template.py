@@ -10,4 +10,7 @@ environments = {
         'lxc': 'example-lxc',
         'lxc_template': 'vanilla', # optional
         },
+    '__all__': {
+        'dba': 'dba'
+        }
 }
