@@ -18,12 +18,8 @@ def _collectstatic():
     if not os.path.exists(django_python):
         raise Exception('%s does not exist' % django_python)
 
-    deb_settings = 'deb_settings'
-    if not os.path.exists(os.path.join(env.django_project, deb_settings + '.py')):
-        raise Exception('%s does not exist' % os.path.join(env.django_project, deb_settings + '.py'))
-
-    local("%(python)s %(manage)s collectstatic --noinput --settings=%(deb)s"
-          % {'python':django_python, 'manage': manage, 'deb': deb_settings})
+    local("%(python)s %(manage)s collectstatic --noinput"
+          % {'python': django_python, 'manage': manage})
 
 
 # Debian package controls
