@@ -35,7 +35,8 @@ def dump():
 
         sudo('pg_dump %s > %s' % (_connection_string(env), rdump_path))
 
-        sudo('rm %s' % 'dumps/latest.sql')
+        with settings(warn_only=True):
+            sudo('rm %s' % 'dumps/latest.sql')
         get(rdump_path, 'dumps/latest.sql')
         sudo('chmod go-rwx %s' % rdump_path)
         local('chmod o-rwx %s' % 'dumps/latest.sql')
