@@ -35,6 +35,7 @@ def dump():
 
         sudo('pg_dump %s > %s' % (_connection_string(env), rdump_path))
 
+        sudo('rm %s' % 'dumps/latest.sql')
         get(rdump_path, 'dumps/latest.sql')
         sudo('chmod go-rwx %s' % rdump_path)
         local('chmod o-rwx %s' % 'dumps/latest.sql')
@@ -54,7 +55,6 @@ def push():
         #  we can add "-v ON_ERROR_STOP=1" to this line
         run('psql %s -f %s' % (connection_string, rdump_path))
         sudo('chmod go-rwx %s' % rdump_path)
-        local('chmod o-rwx %s' % 'dumps/latest.sql')
     else:
         print "-----> remote dumpfile is the same as local - not pushing"
 
