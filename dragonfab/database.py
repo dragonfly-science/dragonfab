@@ -34,11 +34,12 @@ def dump():
             local('mv dumps/latest.sql dumps/latest.sql.last')
 
         sudo('pg_dump %s > %s' % (_connection_string(env), rdump_path))
+        sudo('chown %s:%s %s' % (env.user, env.user, rdump_path))
+        sudo('chmod go-rwx %s' % rdump_path)
 
         with settings(warn_only=True):
             sudo('rm %s' % 'dumps/latest.sql')
-        get(rdump_path, 'dumps/latest.sql', use_sudo=True)
-        sudo('chmod go-rwx %s' % rdump_path)
+        get(rdump_path, 'dumps/latest.sql')
         local('chmod o-rwx %s' % 'dumps/latest.sql')
 
 @task
@@ -48,6 +49,9 @@ def push():
     sudo('mkdir -p %s' % os.path.dirname(rdump_path))
     if not exists(rdump_path) or (remote_md5(rdump_path) != local_md5('dumps/latest.sql')):
         put('dumps/latest.sql', rdump_path, use_sudo=True)
+        sudo('chown %s:%s %s' % (env.user, env.user, rdump_path))
+        sudo('chmod go-rwx %s' % rdump_path)
+
         connection_string = _connection_string(env, dba=True)
         with settings(warn_only=True):
             run('dropdb %s' % connection_string)
@@ -55,7 +59,6 @@ def push():
         #  When this bug is fixed: http://trac.osgeo.org/postgis/ticket/2223
         #  we can add "-v ON_ERROR_STOP=1" to this line
         run('psql %s -f %s' % (connection_string, rdump_path))
-        sudo('chmod go-rwx %s' % rdump_path)
     else:
         print "-----> remote dumpfile is the same as local - not pushing"
 
