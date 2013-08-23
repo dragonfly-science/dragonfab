@@ -5,7 +5,7 @@ from fabric.api import cd, sudo, local, run
 
 # NOTE: These are not full proof, and will fail if there is any junk output due to
 # login scripts (e.g. virtualenvwrapper first time setup).
-remote_md5 = lambda f: run('md5sum %s' % f).split()[0]
+remote_md5 = lambda f: sudo('md5sum %s' % f).split()[0]
 local_md5 = lambda f: local('md5sum %s' % f, capture=True).split()[0]
 
 if hasattr(api.env, 'DEBUG') and api.env.DEBUG:
