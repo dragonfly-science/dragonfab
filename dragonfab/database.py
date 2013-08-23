@@ -37,7 +37,7 @@ def dump():
 
         with settings(warn_only=True):
             sudo('rm %s' % 'dumps/latest.sql')
-        get(rdump_path, 'dumps/latest.sql')
+        get(rdump_path, 'dumps/latest.sql', use_sudo=True)
         sudo('chmod go-rwx %s' % rdump_path)
         local('chmod o-rwx %s' % 'dumps/latest.sql')
 
