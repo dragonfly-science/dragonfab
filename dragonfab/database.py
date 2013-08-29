@@ -33,7 +33,7 @@ def dump():
         if os.path.exists('dumps/latest.sql'):
             local('mv dumps/latest.sql dumps/latest.sql.last')
 
-        sudo('pg_dump %s > %s' % (_connection_string(env), rdump_path))
+        sudo('pg_dump %s > %s' % (_connection_string(env, dba=True), rdump_path))
         sudo('chown %s:%s %s' % (env.user, env.user, rdump_path))
         sudo('chmod go-rwx %s' % rdump_path)
 
@@ -44,10 +44,9 @@ def dump():
 
 @task
 def push():
-    "Recreate database from dumps/latest.sql."
+    """Recreate database from dumps/latest.sql."""
     require('db_user', 'dba')
     sudo('mkdir -p %s' % os.path.dirname(rdump_path))
-    print env.FORCE_DATABASE_PUSH
     if (not exists(rdump_path)
             or (remote_md5(rdump_path) != local_md5('dumps/latest.sql'))
             or hasattr(env, 'FORCE_DATABASE_PUSH')):
