@@ -26,13 +26,12 @@ def _collectstatic():
 @task
 def build():
     """ Build debian package. """
-    # clean out compiled python files
+    # collect static files
     if 'collectstatic' in env and env.collectstatic:
         _collectstatic()
+    # clean out compiled python files
     local("find . -name \"*.pyc\" -exec rm {} \;")
-    # This is the same as local("make package"), but doesn't require projects
-    # have a Makefile
-    local("dpkg-buildpackage -rfakeroot -us -uc -b -tc")
+    local("dpkg-buildpackage -rfakeroot -us -uc -b -tc -i\*.un\~ -i\*.swp")
     time.sleep(2)
 
 def _latest_deb(package_name, package_dir):
@@ -40,13 +39,11 @@ def _latest_deb(package_name, package_dir):
 
 def _put_deb():
     """ Copy debian package on host. """
-    env.debfile = _latest_deb(env.package_name, env.package_dir)
     with lcd(env.package_dir):
         put(env.debfile)
 
 def _install_deb():
     """ Install package on host. """
-    env.debfile = _latest_deb(env.package_name, env.package_dir)
     sudo("apt-get -qq update")
     sudo("apt-get -qq install -yf gdebi-core")
     if 'debconf' in env:
@@ -65,9 +62,9 @@ def _install_deb():
 @task
 def deploy():
     """ Copy and install package on host. """
-    assert 'package_name' in env, "Define Debian package name as env.package_name"
+    require('package_name')
     if 'package_dir' not in env:
         env.package_dir = os.path.join(env.local_dir, '..')
-    execute(_put_deb)
-    execute(_install_deb)
-
+    env.debfile = _latest_deb(env.package_name, env.package_dir)
+    _put_deb()
+    _install_deb()

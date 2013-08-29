@@ -15,7 +15,7 @@ def _connection_string(env, dba=False):
     else:
        options.append(('-U', 'db_user'))
     for param, val in options:
-        if val in env:
+        if val in env and env.get(val):
             conn_str += ' %s %s' % (param, env.get(val))
     conn_str += ' '
     return conn_str
@@ -25,7 +25,7 @@ rdump_path = '/var/backups/dumps/latest.sql'
 @task
 def dump():
     """Copy of current database from the production server to dumps/latest.sql"""
-    require('local_path')
+    require('local_dir')
     sudo('mkdir -p %s' % os.path.dirname(rdump_path))
 
     with lcd(env.local_dir):
@@ -47,7 +47,10 @@ def push():
     "Recreate database from dumps/latest.sql."
     require('db_user', 'dba')
     sudo('mkdir -p %s' % os.path.dirname(rdump_path))
-    if not exists(rdump_path) or (remote_md5(rdump_path) != local_md5('dumps/latest.sql')):
+    print env.FORCE_DATABASE_PUSH
+    if (not exists(rdump_path)
+            or (remote_md5(rdump_path) != local_md5('dumps/latest.sql'))
+            or hasattr(env, 'FORCE_DATABASE_PUSH')):
         put('dumps/latest.sql', rdump_path, use_sudo=True)
         sudo('chown %s:%s %s' % (env.user, env.user, rdump_path))
         sudo('chmod go-rwx %s' % rdump_path)
