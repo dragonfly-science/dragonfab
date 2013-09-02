@@ -24,7 +24,7 @@ rdump_path = '/var/backups/dumps/latest.sql'
 
 @task
 def dump():
-    """Copy of current database from the production server to dumps/latest.sql"""
+    """ Copy of current database from the production server to dumps/latest.sql """
     require('local_dir')
     sudo('mkdir -p %s' % os.path.dirname(rdump_path))
 
@@ -44,7 +44,7 @@ def dump():
 
 @task
 def push():
-    """Recreate database from dumps/latest.sql."""
+    """ Recreate database from dumps/latest.sql. """
     require('db_user', 'dba')
     sudo('mkdir -p %s' % os.path.dirname(rdump_path))
     if (not exists(rdump_path)
@@ -66,8 +66,8 @@ def push():
 
 @task
 def migrate():
+    """ Run south migrations to upgrade database """
     require('remote_path')
-    "Run south migrations to upgrade database"
     with cd(env.remote_path):
         run("./manage.py syncdb --noinput")
         run("./manage.py migrate --list") # Run this to get the state of things first
