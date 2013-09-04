@@ -71,5 +71,6 @@ def deploy():
     env.debfile = _latest_deb(env.package_name, env.package_dir)
     _put_deb()
     if 'wheel' in env and env.wheel:
-        sudo("pip install -U 'pip>=1.4' wheel")
+        # ensure we have the the right versions of all the tools we need
+        sudo("pip install -U 'pip>=1.4' wheel 'setuptools>=0.8'")
     _install_deb()
