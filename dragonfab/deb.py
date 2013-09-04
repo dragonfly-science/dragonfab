@@ -27,6 +27,9 @@ def _collectstatic():
 def build():
     """ Build debian package. """
     # collect static files
+    if 'wheel' in env and env.wheel:
+        with lcd(env.local_dir):
+            local('pip wheel -r requirements.txt')
     if 'collectstatic' in env and env.collectstatic:
         _collectstatic()
     # clean out compiled python files
@@ -67,4 +70,6 @@ def deploy():
         env.package_dir = os.path.join(env.local_dir, '..')
     env.debfile = _latest_deb(env.package_name, env.package_dir)
     _put_deb()
+    if 'wheel' in env and env.wheel:
+        sudo('pip install pip>=1.4 wheel')
     _install_deb()

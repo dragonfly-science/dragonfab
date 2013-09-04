@@ -6,6 +6,6 @@ setup(name = "dragonfab",
     author = "Joel Pitt",
     author_email = "joel@joelpitt.com",
     url = "https://github.com/ferrouswheel/dragonfab",
-    requires = ['fabric'],
+    install_requires = ['fabric', 'pip>=1.4', 'wheel'],
     packages = ['dragonfab'],
 )
