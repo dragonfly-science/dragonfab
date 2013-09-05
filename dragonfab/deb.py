@@ -1,7 +1,7 @@
 import os
 import time
 
-from fabric.api import local, env, task, sudo, lcd, execute, put, require
+from fabric.api import local, env, task, sudo, lcd, execute, put, require, run
 
 
 # collectstatic specifically for deb build stage
@@ -46,10 +46,32 @@ def _put_deb():
     with lcd(env.package_dir):
         put(env.debfile)
 
+def _get_gdebi():
+    """ Get gdebi version that actually works
+    
+    This bug in 12.04 breaks exit code expectations:
+    https://bugs.launchpad.net/ubuntu/+source/gdebi/+bug/1033631
+    """
+    release = run("lsb_release -r -s")
+    direct_download = False
+    try:
+        major, minor = release.split('.')
+        if int(major) < 12:
+            direct_download = True
+        if int(major) == 12 and int(minor) < 10:
+            direct_download = True
+    except TypeError:
+        pass
+    if direct_download:
+        run('wget https://launchpad.net/ubuntu/+archive/primary/+files/gdebi-core_0.8.5ubuntu1.1_all.deb')
+        sudo('apt-get -qq install -yf gdebi-core_0.8.5ubuntu1.1_all.deb')
+    else:
+        sudo("apt-get -qq install -yf gdebi-core")
+
 def _install_deb():
     """ Install package on host. """
     sudo("apt-get -qq update")
-    sudo("apt-get -qq install -yf gdebi-core")
+    _get_gdebi()
     if 'debconf' in env:
         if os.path.exists(env.debconf):
             put(env.debconf, '/root/debconf.dat', use_sudo=True)
