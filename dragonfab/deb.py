@@ -29,6 +29,7 @@ def build():
     # collect static files
     if 'wheel' in env and env.wheel:
         with lcd(env.local_dir):
+            local('rm -rf wheelhouse')
             local('pip wheel -r requirements.txt')
     if 'collectstatic' in env and env.collectstatic:
         _collectstatic()
