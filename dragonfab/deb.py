@@ -52,21 +52,12 @@ def _get_gdebi():
     This bug in 12.04 breaks exit code expectations:
     https://bugs.launchpad.net/ubuntu/+source/gdebi/+bug/1033631
     """
-    release = run("lsb_release -r -s")
-    direct_download = False
-    try:
-        major, minor = release.split('.')
-        if int(major) < 12:
-            direct_download = True
-        if int(major) == 12 and int(minor) < 10:
-            direct_download = True
-    except TypeError:
-        pass
-    if direct_download:
+    sudo("apt-get -qq install -yf gdebi-core")
+    details = run('dpkg -s gdebi-core')
+    buggy_version = '0.8.5build1'
+    if 'Version: ' + buggy_version in details:
         run('wget https://launchpad.net/ubuntu/+archive/primary/+files/gdebi-core_0.8.5ubuntu1.1_all.deb')
-        sudo('apt-get -qq install -yf gdebi-core_0.8.5ubuntu1.1_all.deb')
-    else:
-        sudo("apt-get -qq install -yf gdebi-core")
+        sudo('sudo gdebi -q --non-interactive gdebi-core_0.8.5ubuntu1.1_all.deb')
 
 def _install_deb():
     """ Install package on host. """
