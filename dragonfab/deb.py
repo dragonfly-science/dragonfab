@@ -56,6 +56,7 @@ def _get_gdebi():
     details = run('dpkg -s gdebi-core')
     buggy_version = '0.8.5build1'
     if 'Version: ' + buggy_version in details:
+        sudo("apt-get -qq install -yf wget")
         run('wget https://launchpad.net/ubuntu/+archive/primary/+files/gdebi-core_0.8.5ubuntu1.1_all.deb')
         sudo('sudo gdebi -q --non-interactive gdebi-core_0.8.5ubuntu1.1_all.deb')
 
