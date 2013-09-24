@@ -70,6 +70,6 @@ def migrate():
     require('remote_path')
     with cd(env.remote_path):
         run("./manage.py syncdb --noinput")
-        run("./manage.py migrate --list") # Run this to get the state of things first
-        run("./manage.py migrate")
+        run("./manage.py migrate --noinput --list") # Run this to get the state of things first
+        run("./manage.py migrate --noinput")
 
