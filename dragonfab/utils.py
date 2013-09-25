@@ -7,14 +7,14 @@ def maintenance_on():
     """ Add maintenance lock file and restart apache """
     require('remote_path')
     sudo('touch %s/%s' % (env.remote_path, maintenance_lock))
-    execute('apache_restart')
+    apache_restart()
 
 @task
 def maintenance_off():
     """ Remove maintenance lock file and restart apache """
     require('remote_path')
     sudo('rm -f %s/%s' % (env.remote_path, maintenance_lock))
-    execute('apache_restart')
+    apache_restart()
 
 @task
 def apache_restart():
