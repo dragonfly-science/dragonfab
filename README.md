@@ -107,6 +107,13 @@ dragonfab provides:
 * `deb.deploy` - Deploy the most recently created deb, using the debconf.dat
   of the current environment.
 
+### pip wheel
+
+In our python/django projects we often use `pip install -r requirements.txt` as
+part of the debian/postinst script. This isn't ideal, as it requires access to
+pypi servers and potentially a long download process if it's in a fresh
+environment. Not to mention these downloads happening multiple times.
+
 ## Database and file syncing
 
 dragonfab also provides tools to ship around application state. In particular, the
