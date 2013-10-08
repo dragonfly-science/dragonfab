@@ -34,12 +34,12 @@ except ImportError, e:
     sys.exit(1)
 
 # Template task for LXC environment
-def _lxc(env_name):
+def _lxc(env_name, force_new=False):
     """ Ensure that we have an lxc, and set up hosts to point at it. """
     # Get and set up an lxc environment.
     lxc_env = environments.environments[env_name]
     lxc_name = lxc_env['lxc']
-    if not os.path.exists('/var/lib/lxc/%s' % lxc_name):
+    if force_new or not os.path.exists('/var/lib/lxc/%s' % lxc_name):
         if 'lxc_template' in lxc_env:
             _new_lxc(lxc_name, template=lxc_env['lxc_template'])
         else:
@@ -70,11 +70,11 @@ for env_name, settings in environments.environments.iteritems():
         class _lxc_task(Task):
             name = env_name
             env_settings = dict(settings)
-            def run(self):
+            def run(self, force_new=None):
                 env.update(_defaults)
                 env.update(self.env_settings)
                 env.env_name = self.name
-                _lxc(self.name)
+                _lxc(self.name, force_new)
         t = _lxc_task()
         t.__doc__ = "Activate %s environment (lxc: '%s')." % (env_name, settings['lxc'])
         setattr(sys.modules[__name__], env_name, t)
