@@ -33,6 +33,18 @@ except ImportError, e:
     print "Error importing environments module: '%s'" % str(e)
     sys.exit(1)
 
+
+def get_lxc_dhcp_lease(lxc_name):
+    result = local(
+            "cat /var/lib/misc/dnsmasq.leases | grep ' %s ' | awk '{print $2 $3}'"
+            % lxc_name, capture=True)
+    if result:
+        mac_addr, ip_addr = result.split()
+        return mac_addr, ip_addr
+    else:
+        return None, None
+
+
 # Template task for LXC environment
 def _lxc(env_name, force_new=False):
     """ Ensure that we have an lxc, and set up hosts to point at it. """
@@ -57,9 +69,11 @@ def _lxc(env_name, force_new=False):
     env.hosts = [ip_address]
     print "LXC setup on: %s" % ip_address
 
+
 # __all__ is for shared values across environments
 default_label = '__all__'
 _defaults = environments.environments.get(default_label, {})
+
 
 # For each environment we create a fabric task that will modify the fabric global env
 for env_name, settings in environments.environments.iteritems():
@@ -92,13 +106,19 @@ for env_name, settings in environments.environments.iteritems():
         setattr(sys.modules[__name__], env_name, t)
     __all__.append(env_name)
 
+
 def _new_lxc(lxc_name, template='vanilla'):
     """ Create a new LXC instance on the local machine. """
+    old_dhcp_lease = get_lxc_dhcp_lease(lxc_name)
     if os.path.exists('/var/lib/lxc/%s' % lxc_name):
         _lxc_remove()
     if not os.path.exists('/var/lib/lxc/%s' % template):
         raise Exception("Error: you don't have a LXC to clone, called %s" % template)
     local("sudo lxc-clone -o %s -n %s" % (template, lxc_name))
     local("sudo lxc-start -n %s -d" % lxc_name)
-    time.sleep(10) # give lxc time to start
 
+    while old_dhcp_lease == get_lxc_dhcp_lease(lxc_name):
+        # This is a hack to wait for the LXC to boot
+        # lxc-wait, lxc-monitor and all the other lxc tools seem next to useless
+        # if you want block until an lxc has finished booting
+        time.sleep(10)
