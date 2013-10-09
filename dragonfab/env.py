@@ -36,7 +36,7 @@ except ImportError, e:
 
 def get_lxc_dhcp_lease(lxc_name):
     result = local(
-            "cat /var/lib/misc/dnsmasq.leases | grep ' %s ' | awk '{print $2 $3}'"
+            "cat /var/lib/misc/dnsmasq.leases | grep ' %s ' | awk '{print $2, $3}'"
             % lxc_name, capture=True)
     if result:
         mac_addr, ip_addr = result.split()
