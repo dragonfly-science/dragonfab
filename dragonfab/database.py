@@ -47,22 +47,23 @@ def push():
     """ Recreate database from dumps/latest.sql. """
     require('db_user', 'dba')
     sudo('mkdir -p %s' % os.path.dirname(rdump_path))
+    
     if (not exists(rdump_path)
             or (remote_md5(rdump_path) != local_md5('dumps/latest.sql'))
             or hasattr(env, 'FORCE_DATABASE_PUSH')):
         put('dumps/latest.sql', rdump_path, use_sudo=True)
         sudo('chown %s:%s %s' % (env.user, env.user, rdump_path))
         sudo('chmod go-rwx %s' % rdump_path)
-
-        connection_string = _connection_string(env, dba=True)
-        with settings(warn_only=True):
-            run('dropdb %s' % connection_string)
-        run('createdb -O %s %s' % (env.db_user, connection_string))
-        #  When this bug is fixed: http://trac.osgeo.org/postgis/ticket/2223
-        #  we can add "-v ON_ERROR_STOP=1" to this line
-        run('psql %s -f %s' % (connection_string, rdump_path))
     else:
         print "-----> remote dumpfile is the same as local - not pushing"
+
+    connection_string = _connection_string(env, dba=True)
+    with settings(warn_only=True):
+        run('dropdb %s' % connection_string)
+    run('createdb -O %s %s' % (env.db_user, connection_string))
+    #  When this bug is fixed: http://trac.osgeo.org/postgis/ticket/2223
+    #  we can add "-v ON_ERROR_STOP=1" to this line
+    run('psql %s -f %s' % (connection_string, rdump_path))
 
 @task
 def migrate():
