@@ -26,11 +26,13 @@ def _collectstatic():
 @task
 def build():
     """ Build debian package. """
+    require('package_name')
     # collect static files
     if 'wheel' in env and env.wheel:
+        pip_build_dir = "/tmp/pip_build_%s_%s" % (env.user, env.package_name)
         with lcd(env.local_dir):
             local('rm -rf wheelhouse')
-            local('pip wheel -r requirements.txt')
+            local("pip wheel -b %s -r requirements.txt" % pip_build_dir)
     if 'collectstatic' in env and env.collectstatic:
         _collectstatic()
     # clean out compiled python files
