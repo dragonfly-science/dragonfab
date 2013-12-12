@@ -30,6 +30,8 @@ def build():
     # collect static files
     if 'wheel' in env and env.wheel:
         pip_build_dir = "/tmp/pip_build_%s_%s" % (env.user, env.package_name)
+        if os.path.isdir(pip_build_dir):
+            local('rm -rf "%s"' % pip_build_dir)
         with lcd(env.local_dir):
             local('rm -rf wheelhouse')
             local("pip wheel -b %s -r requirements.txt" % pip_build_dir)
