@@ -2,7 +2,7 @@ import sys
 import os
 import time
 
-from fabric.api import local, env
+from fabric.api import local, env, warn_only
 #from fabric.operations import require
 from fabric.tasks import Task
 
@@ -44,6 +44,9 @@ def get_lxc_dhcp_lease(lxc_name):
     else:
         return None, None
 
+def _lxc_exists(lxc_name):
+    with warn_only():
+        return local('sudo ls -d /var/lib/lxc/%s' % lxc_name, capture=True)
 
 # Template task for LXC environment
 def _lxc(env_name, force_new=False):
@@ -51,7 +54,8 @@ def _lxc(env_name, force_new=False):
     # Get and set up an lxc environment.
     lxc_env = environments.environments[env_name]
     lxc_name = lxc_env['lxc']
-    if force_new or not os.path.exists('/var/lib/lxc/%s' % lxc_name):
+
+    if force_new or not _lxc_exists(lxc_name):
         if 'lxc_template' in lxc_env:
             _new_lxc(lxc_name, template=lxc_env['lxc_template'])
         else:
@@ -110,9 +114,9 @@ for env_name, settings in environments.environments.iteritems():
 def _new_lxc(lxc_name, template='vanilla'):
     """ Create a new LXC instance on the local machine. """
     old_dhcp_lease = get_lxc_dhcp_lease(lxc_name)
-    if os.path.exists('/var/lib/lxc/%s' % lxc_name):
+    if _lxc_exists(lxc_name):
         _lxc_remove()
-    if not os.path.exists('/var/lib/lxc/%s' % template):
+    if not _lxc_exists(template):
         raise Exception("Error: you don't have a LXC to clone, called %s" % template)
     local("sudo lxc-clone -o %s -n %s" % (template, lxc_name))
     local("sudo lxc-start -n %s -d" % lxc_name)
