@@ -52,24 +52,9 @@ def _put_deb():
     with lcd(env.package_dir):
         put(env.debfile)
 
-def _get_gdebi():
-    """ Get gdebi version that actually works
-    
-    This bug in 12.04 breaks exit code expectations:
-    https://bugs.launchpad.net/ubuntu/+source/gdebi/+bug/1033631
-    """
-    sudo("apt-get -qq install -yf gdebi-core")
-    details = run('dpkg -s gdebi-core')
-    buggy_version = '0.8.5build1'
-    if 'Version: ' + buggy_version in details:
-        sudo("apt-get -qq install -yf wget")
-        run('wget https://launchpad.net/ubuntu/+archive/primary/+files/gdebi-core_0.8.5ubuntu1.1_all.deb')
-        sudo('sudo gdebi -q --non-interactive gdebi-core_0.8.5ubuntu1.1_all.deb')
-
 def _install_deb():
     """ Install package on host. """
     sudo("apt-get -qq update")
-    _get_gdebi()
     if 'debconf' in env:
         if os.path.exists(env.debconf):
             put(env.debconf, '/root/debconf.dat', use_sudo=True)
