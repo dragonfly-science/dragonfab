@@ -34,9 +34,12 @@ def build():
             pip_build_dir = env.pip_build_dir
         if os.path.isdir(pip_build_dir):
             local('rm -rf "%s"' % pip_build_dir)
+        wheelcmd = "pip wheel -b %s -r requirements.txt" % pip_build_dir
+        if 'wheelserver' in env:
+            wheelcmd += " --index-url %s" % env.wheelserver
         with lcd(env.local_dir):
             local('rm -rf wheelhouse')
-            local("pip wheel -b %s -r requirements.txt" % pip_build_dir)
+            local(wheelcmd)
     if 'collectstatic' in env and env.collectstatic:
         _collectstatic()
     # clean out compiled python files
