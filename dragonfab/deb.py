@@ -64,6 +64,7 @@ def _install_deb():
             sudo("""DEBIAN_FRONTEND=noninteractive \
                   DEBCONF_DB_OVERRIDE='File{/root/debconf.dat}' \
                   gdebi -o Dpkg::Options::="--force-confnew" \
+                  -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 \
                   -q --non-interactive  %(debfile)s""" % env)
         else:
             # If debconf is defined but missing, treat as an error
