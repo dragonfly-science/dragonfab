@@ -1,6 +1,6 @@
 import os
 
-from fabric.api import local, env, task, sudo, lcd, put, run, cd, settings, get, require
+from fabric.api import local, env, task, sudo, lcd, put, run, cd, settings, get, require, abort, execute
 from fabric.contrib.files import exists
 
 from dragonfab import local_md5, remote_md5
@@ -43,8 +43,18 @@ def dump():
         local('chmod o-rwx %s' % 'dumps/latest.sql')
 
 @task
-def push():
+def force_push():
+    execute(push, really=True)
+
+@task
+def push(really=False):
     """ Recreate database from dumps/latest.sql. """
+
+    if env.env_name in ['production'] and not really:
+        print "Overwriting the db in an environment called '%s' sounds dangerous." % env.env_name
+        print "Use database.force_push instead."
+        abort(0x6539d5)
+
     require('db_user', 'dba')
     sudo('mkdir -p %s' % os.path.dirname(rdump_path))
     
