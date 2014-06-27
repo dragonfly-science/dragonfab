@@ -100,7 +100,7 @@ for env_name, settings in environments.environments.iteritems():
             def run(self):
                 env.update(_defaults)
                 env.update(self.env_settings)
-                env.env_name = env_name
+                env.env_name = self.name
         t = _set_env()
         t.__doc__ = "Activate %s environment." % env_name
         setattr(sys.modules[__name__], env_name, t)
