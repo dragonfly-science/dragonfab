@@ -20,27 +20,27 @@ def _connection_string(env, dba=False):
     conn_str += ' '
     return conn_str
 
-rdump_path = '/var/backups/dumps/latest.sql'
+rdump_path = '/var/backups/dumps/latest.sql.gz'
 
 @task
 def dump():
-    """ Copy of current database from the production server to dumps/latest.sql """
+    """ Copy current database from remote server to dumps/latest.sql.gz """
     require('local_dir')
     sudo('mkdir -p %s' % os.path.dirname(rdump_path))
 
     with lcd(env.local_dir):
         local('mkdir -p dumps')
-        if os.path.exists('dumps/latest.sql'):
-            local('mv dumps/latest.sql dumps/latest.sql.last')
+        if os.path.exists('dumps/latest.sql.gz'):
+            local('mv dumps/latest.sql.gz dumps/latest.sql.gz.last')
 
-        sudo('pg_dump %s > %s' % (_connection_string(env, dba=True), rdump_path))
+        sudo('pg_dump %s | gzip > %s' % (_connection_string(env, dba=True), rdump_path))
         sudo('chown %s:%s %s' % (env.user, env.user, rdump_path))
         sudo('chmod go-rwx %s' % rdump_path)
 
         with settings(warn_only=True):
-            sudo('rm %s' % 'dumps/latest.sql')
-        get(rdump_path, 'dumps/latest.sql')
-        local('chmod o-rwx %s' % 'dumps/latest.sql')
+            sudo('rm %s' % 'dumps/latest.sql.gz')
+        get(rdump_path, 'dumps/latest.sql.gz')
+        local('chmod o-rwx %s' % 'dumps/latest.sql.gz')
 
 @task
 def force_push():
@@ -48,7 +48,7 @@ def force_push():
 
 @task
 def push(really=False):
-    """ Recreate database from dumps/latest.sql. """
+    """ Recreate database from dumps/latest.sql.gz. """
 
     if env.env_name in ['production'] and not really:
         print "Overwriting the db in an environment called '%s' sounds dangerous." % env.env_name
@@ -59,9 +59,9 @@ def push(really=False):
     sudo('mkdir -p %s' % os.path.dirname(rdump_path))
     
     if (not exists(rdump_path)
-            or (remote_md5(rdump_path) != local_md5('dumps/latest.sql'))
+            or (remote_md5(rdump_path) != local_md5('dumps/latest.sql.gz'))
             or hasattr(env, 'FORCE_DATABASE_PUSH')):
-        put('dumps/latest.sql', rdump_path, use_sudo=True)
+        put('dumps/latest.sql.gz', rdump_path, use_sudo=True)
         sudo('chown %s:%s %s' % (env.user, env.user, rdump_path))
         sudo('chmod go-rwx %s' % rdump_path)
     else:
@@ -73,7 +73,7 @@ def push(really=False):
     run('createdb -O %s %s' % (env.db_user, connection_string))
     #  When this bug is fixed: http://trac.osgeo.org/postgis/ticket/2223
     #  we can add "-v ON_ERROR_STOP=1" to this line
-    run('psql %s -f %s' % (connection_string, rdump_path))
+    run('gunzip -c %s | psql %s' % (rdump_path, connection_string))
 
 @task
 def migrate():
