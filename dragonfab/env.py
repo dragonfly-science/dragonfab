@@ -79,6 +79,8 @@ _defaults = environments.environments.get(default_label, {})
 for env_name, settings in environments.environments.iteritems():
     if env_name == default_label:
         continue
+    if 'docker' in settings and hasattr(environments, 'containers'):
+        settings['containers'] = environments.containers
     if 'lxc' in settings:
         # lxc environments require special handling based off of the _lxc method
         class _lxc_task(Task):
