@@ -2,7 +2,7 @@ import sys
 import os
 import time
 
-from fabric.api import local, env
+from fabric.api import local, env, abort
 #from fabric.operations import require
 from fabric.tasks import Task
 
@@ -64,8 +64,10 @@ def _lxc(env_name, force_new=False):
         time.sleep(10) # give lxc time to start
 
     ip_address = local(
-            "cat /var/lib/misc/dnsmasq.leases | grep ' %s ' | awk '{print $3}'"
+            "cat /var/lib/misc/dnsmasq.lxcbr0.leases | grep ' %s ' | awk '{print $3}'"
             % lxc_name, capture=True)
+    if not ip_address:
+        abort('No lxc ip address found')
     env.hosts = [ip_address]
     print "LXC setup on: %s" % ip_address
 
