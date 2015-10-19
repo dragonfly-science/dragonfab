@@ -37,6 +37,8 @@ def build():
         wheelcmd = "pip wheel -b %s -r requirements.txt" % pip_build_dir
         if 'wheelserver' in env:
             wheelcmd += " --index-url %s" % env.wheelserver
+        if 'wheelserver_trusted_host' in env:
+            wheelcmd += " --trusted-host %s" % env.wheelserver_trusted_host
         with lcd(env.local_dir):
             local('rm -rf wheelhouse')
             local(wheelcmd)
