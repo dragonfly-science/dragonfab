@@ -33,16 +33,19 @@ except ImportError, e:
     print "Error importing environments module: '%s'" % str(e)
     sys.exit(1)
 
+dnsmasq_lease_files = (
+    '/var/lib/misc/dnsmasq.leases',
+    '/var/lib/misc/dnsmasq.lxcbr0.leases')
 
 def get_lxc_dhcp_lease(lxc_name):
-    result = local(
-            "cat /var/lib/misc/dnsmasq.leases | grep ' %s ' | awk '{print $2, $3}'"
-            % lxc_name, capture=True)
-    if result:
-        mac_addr, ip_addr = result.split()
-        return mac_addr, ip_addr
-    else:
-        return None, None
+    for f in dnsmasq_lease_files:
+        result = local(
+            "cat %s | grep ' %s ' | awk '{print $2, $3}'"
+            % (f, lxc_name), capture=True)
+        if result:
+            mac_addr, ip_addr = result.split()
+            return mac_addr, ip_addr
+    return None, None
 
 
 # Template task for LXC environment
@@ -63,9 +66,12 @@ def _lxc(env_name, force_new=False):
         local("sudo lxc-start -n %s -d" % lxc_name)
         time.sleep(10) # give lxc time to start
 
-    ip_address = local(
-            "cat /var/lib/misc/dnsmasq.lxcbr0.leases | grep ' %s ' | awk '{print $3}'"
-            % lxc_name, capture=True)
+    for f in dnsmasq_lease_files:
+        ip_address = local(
+            "cat %s | grep ' %s ' | awk '{print $3}'"
+            % (f, lxc_name), capture=True)
+        if ip_address:
+            break
     if not ip_address:
         abort('No lxc ip address found')
     env.hosts = [ip_address]
