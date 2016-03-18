@@ -25,5 +25,10 @@ def apache_restart():
     sudo('service apache2 restart', pty=False)
 
 @task
+def apache_stop():
+    sudo('sleep 2')
+    sudo('service apache2 stop', pty=False)
+
+@task
 def setup_containers():
     dfdocker.setup_containers()
