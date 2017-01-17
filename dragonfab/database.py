@@ -80,7 +80,7 @@ def migrate():
     """ Run south migrations to upgrade database """
     require('remote_path')
     with cd(env.remote_path):
-        run("./manage.py syncdb --noinput")
+        run("./manage.py syncdb --noinput", warn_only=True)
         run("./manage.py migrate --noinput --list") # Run this to get the state of things first
         run("./manage.py migrate --noinput")
 
